@@ -4,7 +4,7 @@ import { Search, Plus, Users, GraduationCap, RefreshCw, Pencil, Trash2, X, Arrow
 import './styles.css';
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:8080/api/students';
-const API_BASE = API.replace(/\\/students\\/?$/, '');
+const API_BASE = API.replace('/api/students', '/api');
 const emptyForm = { id: '', name: '', email: '', branch: '', age: '' };
 
 function App() {
