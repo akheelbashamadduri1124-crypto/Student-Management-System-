@@ -54,7 +54,7 @@ public class StudentController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Student could not be created");
         } catch (SQLException ex) {
             if ("23000".equals(ex.getSQLState())) {
-                throw new ResponseStatusException(HttpStatus.CONFLICT, "Student ID or email already exists");
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "Student ID already exists");
             }
             throw databaseError(ex);
         }
