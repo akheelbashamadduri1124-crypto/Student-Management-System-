@@ -29,7 +29,7 @@ public class SecurityConfig {
     @Bean
     UserDetailsService userDetailsService(
             @Value("${ADMIN_USERNAME:admin}") String username,
-            @Value("${ADMIN_PASSWORD}") String password,
+            @Value("${ADMIN_PASSWORD:}") String password,
             PasswordEncoder encoder) {
         if (password == null || password.isBlank()) {
             throw new IllegalStateException("Set the ADMIN_PASSWORD environment variable.");
