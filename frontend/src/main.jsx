@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { Search, Plus, Users, GraduationCap, RefreshCw, Pencil, Trash2, X, ArrowUpRight } from 'lucide-react';
+import { Search, Plus, Users, GraduationCap, RefreshCw, Pencil, Trash2, X, ArrowUpRight, LayoutDashboard, Eye } from 'lucide-react';
 import './styles.css';
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:8080/api/students';
@@ -8,6 +8,7 @@ const emptyForm = { id: '', name: '', email: '', branch: '', age: '' };
 
 function App() {
   const [students, setStudents] = useState([]);
+  const [page, setPage] = useState('dashboard');
   const [search, setSearch] = useState('');
   const [modal, setModal] = useState(false);
   const [editingId, setEditingId] = useState(null);
@@ -87,21 +88,24 @@ function App() {
     <aside className="sidebar">
       <div className="brand"><div className="brand-mark"><GraduationCap size={23}/></div><div><strong>CampusDesk</strong><span>STUDENT PORTAL</span></div></div>
       <div className="nav-label">WORKSPACE</div>
-      <div className="nav-item active"><Users size={18}/> Students <span className="nav-dot"/></div>
+      <button className={"nav-item " + (page === "dashboard" ? "active" : "")} onClick={() => setPage("dashboard")}><LayoutDashboard size={18}/> Dashboard {page === "dashboard" && <span className="nav-dot"/>}</button>
+      <button className={"nav-item " + (page === "students" ? "active" : "")} onClick={() => setPage("students")}><Eye size={18}/> View students {page === "students" && <span className="nav-dot"/>}</button>
+      <button className="nav-item" onClick={openAdd}><Plus size={18}/> Add student</button>
       <div className="sidebar-bottom"><div className="avatar">SM</div><div><strong>Administration</strong><span>Student records</span></div></div>
     </aside>
     <main className="main">
-      <header className="topbar"><div className="crumb">Workspace <span>/</span> <strong>Students</strong></div><div className="status"><i/> Student database</div></header>
+      <header className="topbar"><div className="crumb">Workspace <span>/</span> <strong>{page === "dashboard" ? "Dashboard" : "View students"}</strong></div><div className="status"><i/> Student database</div></header>
       <section className="content">
-        <div className="page-heading"><div><div className="eyebrow">STUDENT DIRECTORY</div><h1>Students <span className="count">{students.length}</span></h1><p>Manage student records in one place.</p></div><button className="primary" onClick={openAdd}><Plus size={18}/> Add student</button></div>
+        <div className="page-heading"><div><div className="eyebrow">{page === "dashboard" ? "YOUR WORKSPACE" : "STUDENT DIRECTORY"}</div><h1>{page === "dashboard" ? "Dashboard" : "View students"} <span className="count">{students.length}</span></h1><p>{page === "dashboard" ? "A clear overview of your student records." : "Search, view and manage student information."}</p></div><button className="primary" onClick={openAdd}><Plus size={18}/> Add student</button></div>
         <div className="stats-grid">
           <div className="stat-card"><div className="stat-top"><span>Total students</span><div className="stat-icon purple"><Users size={18}/></div></div><div className="stat-number">{students.length}</div><div className="stat-foot">Records in your directory</div></div>
           <div className="stat-card"><div className="stat-top"><span>Branches represented</span><div className="stat-icon blue"><GraduationCap size={18}/></div></div><div className="stat-number">{new Set(students.map(s => s.branch).filter(Boolean)).size}</div><div className="stat-foot">Unique academic branches</div></div>
           <div className="stat-card"><div className="stat-top"><span>Average age</span><div className="stat-icon green"><ArrowUpRight size={18}/></div></div><div className="stat-number">{students.length ? (students.reduce((sum, s) => sum + Number(s.age || 0), 0) / students.length).toFixed(1) : '—'}</div><div className="stat-foot">Across all student records</div></div>
         </div>
+        {page === "dashboard" && <section className="welcome-card"><div className="welcome-copy"><span className="welcome-pill"><GraduationCap size={14}/> STUDENT MANAGEMENT</span><h2>Everything about your students, <em>in one place.</em></h2><p>View records, find student details quickly, and keep your directory up to date.</p><button className="welcome-button" onClick={() => setPage("students")}>View students <ArrowUpRight size={16}/></button></div><div className="welcome-art" aria-hidden="true"><div className="art-orbit orbit-one"/><div className="art-orbit orbit-two"/><div className="art-cap"><GraduationCap size={68}/></div><div className="art-chip chip-one"><Users size={16}/> Records</div><div className="art-chip chip-two"><span/> Connected</div></div></section>}
         {notice && <div className="notice">{notice}<button onClick={() => setNotice('')} aria-label="Dismiss"><X size={15}/></button></div>}
         {error && <div className="error-banner">{error}<button onClick={() => setError('')} aria-label="Dismiss"><X size={15}/></button></div>}
-        <section className="table-card">
+        {page === "students" && <section className="table-card">
           <div className="table-heading"><div><h2>All students</h2><p>Browse and manage student information</p></div><button className="icon-button" onClick={loadStudents} title="Refresh"><RefreshCw size={17}/></button></div>
           <div className="table-tools"><div className="searchbox"><Search size={17}/><input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search name, email, branch or ID..." /></div><span className="result-count">{filtered.length} records</span></div>
           <div className="table-wrap"><table><thead><tr><th>STUDENT</th><th>STUDENT ID</th><th>BRANCH</th><th>AGE</th><th>ACTIONS</th></tr></thead>
@@ -110,7 +114,7 @@ function App() {
               filtered.map(s => <tr key={s.id}><td><div className="student-cell"><div className="student-avatar">{(s.name || '?').split(/\s+/).map(x => x[0]).join('').slice(0,2).toUpperCase()}</div><div><strong>{s.name}</strong><span>{s.email}</span></div></div></td><td><span className="id-tag">#{s.id}</span></td><td><span className="branch-tag">{s.branch}</span></td><td>{s.age}</td><td><div className="actions"><button className="action edit" onClick={() => openEdit(s)} title="Edit student"><Pencil size={16}/></button><button className="action delete" onClick={() => deleteStudent(s)} title="Delete student"><Trash2 size={16}/></button></div></td></tr>)}
             </tbody></table></div>
           <div className="table-footer"><span>Showing {filtered.length} of {students.length} students</span><span className="live-indicator"><i/> Live API data</span></div>
-        </section>
+        </section>}
         <footer>CampusDesk <span>·</span> Student Management System</footer>
       </section>
     </main>
