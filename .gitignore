@@ -4,7 +4,7 @@ bin/
 target/
 build/
 
-# Eclipse local settings
+# Eclipse local workspace settings
 .metadata/
 .settings/
 
@@ -12,3 +12,7 @@ build/
 .env
 .env.*
 !.env.example
+
+# React / Node generated files
+frontend/node_modules/
+frontend/dist/
